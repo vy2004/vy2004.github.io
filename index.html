@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chatbot Hỏi đáp về Lịch sử Việt Nam - Khám phá lịch sử Việt Nam qua AI">
+    <title>Chatbot Hỏi đáp về Lịch sử Việt Nam</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* GIF Background */
+        .bg-gif {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('docs/Vietnam Flag Gif GIF - Vietnam Flag Gif Asia - Discover & Share GIFs.gif') center center / cover no-repeat;
+            z-index: 0;
+        }
+
+        /* Dark overlay for readability */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg,
+                    rgba(0, 0, 0, 0.65) 0%,
+                    rgba(20, 10, 5, 0.55) 50%,
+                    rgba(0, 0, 0, 0.7) 100%);
+            z-index: 1;
+        }
+
+        /* Content wrapper */
+        .content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            animation: fadeInUp 1.2s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Star icon / decorative element */
+        .star-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 1.5rem;
+            animation: rotateStar 8s linear infinite;
+        }
+
+        .star-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+        }
+
+        @keyframes rotateStar {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Title */
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            color: #ffffff;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .title-highlight {
+            background: linear-gradient(135deg, #FFD700, #FF6B35, #DA291C);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Subtitle */
+        .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.15rem);
+            color: rgba(255, 255, 255, 0.75);
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        /* Button */
+        .btn-start {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 48px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #DA291C 0%, #FF6B35 50%, #FFD700 100%);
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            text-decoration: none;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow:
+                0 8px 32px rgba(218, 41, 28, 0.4),
+                0 0 60px rgba(255, 107, 53, 0.15);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            overflow: hidden;
+        }
+
+        .btn-start::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.25),
+                    transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow:
+                0 12px 40px rgba(218, 41, 28, 0.55),
+                0 0 80px rgba(255, 107, 53, 0.25);
+        }
+
+        .btn-start:hover::before {
+            left: 100%;
+        }
+
+        .btn-start:active {
+            transform: translateY(-1px) scale(1.0);
+        }
+
+        .btn-arrow {
+            font-size: 1.3rem;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-start:hover .btn-arrow {
+            transform: translateX(5px);
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 215, 0, 0.5);
+            border-radius: 50%;
+            animation: float linear infinite;
+        }
+
+        .particle:nth-child(1) {
+            left: 10%;
+            animation-duration: 12s;
+            animation-delay: 0s;
+            width: 3px;
+            height: 3px;
+        }
+
+        .particle:nth-child(2) {
+            left: 25%;
+            animation-duration: 15s;
+            animation-delay: 2s;
+            width: 5px;
+            height: 5px;
+        }
+
+        .particle:nth-child(3) {
+            left: 40%;
+            animation-duration: 10s;
+            animation-delay: 4s;
+        }
+
+        .particle:nth-child(4) {
+            left: 55%;
+            animation-duration: 14s;
+            animation-delay: 1s;
+            width: 6px;
+            height: 6px;
+        }
+
+        .particle:nth-child(5) {
+            left: 70%;
+            animation-duration: 11s;
+            animation-delay: 3s;
+            width: 3px;
+            height: 3px;
+        }
+
+        .particle:nth-child(6) {
+            left: 85%;
+            animation-duration: 13s;
+            animation-delay: 5s;
+        }
+
+        .particle:nth-child(7) {
+            left: 15%;
+            animation-duration: 16s;
+            animation-delay: 6s;
+            width: 5px;
+            height: 5px;
+        }
+
+        .particle:nth-child(8) {
+            left: 60%;
+            animation-duration: 9s;
+            animation-delay: 1.5s;
+            width: 3px;
+            height: 3px;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-10vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Powered by */
+        .powered-by {
+            position: fixed;
+            bottom: 20px;
+            right: 24px;
+            z-index: 2;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.55);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            animation: fadeIn 2s ease-out 0.8s both;
+        }
+
+        .powered-by span {
+            color: rgba(255, 215, 0, 0.85);
+            font-weight: 700;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Pulse ring on button */
+        @keyframes pulse-ring {
+            0% {
+                box-shadow:
+                    0 8px 32px rgba(218, 41, 28, 0.4),
+                    0 0 0 0 rgba(218, 41, 28, 0.4);
+            }
+
+            70% {
+                box-shadow:
+                    0 8px 32px rgba(218, 41, 28, 0.4),
+                    0 0 0 20px rgba(218, 41, 28, 0);
+            }
+
+            100% {
+                box-shadow:
+                    0 8px 32px rgba(218, 41, 28, 0.4),
+                    0 0 0 0 rgba(218, 41, 28, 0);
+            }
+        }
+
+        .btn-start {
+            animation: pulse-ring 2.5s ease-out infinite 2s;
+        }
+
+        .btn-start:hover {
+            animation: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- GIF Background -->
+    <div class="bg-gif"></div>
+
+    <!-- Dark Overlay -->
+    <div class="bg-overlay"></div>
+
+    <!-- Floating Particles -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Decorative Star -->
+        <div class="star-icon">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="50,5 63,38 98,38 70,60 80,95 50,73 20,95 30,60 2,38 37,38" fill="#FFD700"
+                    stroke="#FF6B35" stroke-width="2" />
+            </svg>
+        </div>
+
+        <!-- Title -->
+        <h1>
+            <span class="title-highlight">Chatbot Hỏi đáp</span><br>
+            về Lịch sử Việt Nam
+        </h1>
+
+        <p class="subtitle">Khám phá lịch sử hào hùng của dân tộc Việt Nam</p>
+
+        <!-- Start Button -->
+        <a href="https://huggingface.co/spaces/NguyenQuocVy2004/chatbot-lichsu" class="btn-start" id="btn-start">
+            Bắt đầu
+            <span class="btn-arrow">→</span>
+        </a>
+    </div>
+
+    <!-- Powered By -->
+    <div class="powered-by">
+        Powered by <span>Nguyễn Quốc Vỹ</span>
+    </div>
+</body>
+
+</html>
